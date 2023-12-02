@@ -8,9 +8,9 @@ const porta = 5000
 servidor.use(express.json())
 servidor.use(express.static('public'))
 
-const notificacao = (mensagem) => ({
+const notificacao = (mensagem, pessoa) => ({
     mensagem: mensagem,
-    quemEnviou: 'Eduardo Lacava',
+    quemEnviou: pessoa,
     dataEnvio: new Date()
   })
 
@@ -44,7 +44,7 @@ webSocketServidor.on('connection', (socket) => {
 });
 
 servidor.post('/api/envia-mensagem-ws', async (req, res) => {
-    pessoasConectadas.forEach((pessoa) => pessoa.send(JSON.stringify(notificacao(req.body.mensagem))))
+    pessoasConectadas.forEach((pessoa) => pessoa.send(JSON.stringify(notificacao(req.body.mensagem, req.body.pessoa))))
     return res.status(200).json()
 })
 
