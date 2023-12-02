@@ -2,15 +2,96 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>WebSocket Example</title>
     <style>
         body {
-            background-color: purple;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+
+        #chat {
+            width: 400px;
+            margin: 20px auto;
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .notificacao {
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            width: 300px;
+            height: 100px;
+            background-color: black;
+            color: white;
+            border-radius: 20px;
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
-    OLÁ SOU O SERVIDOR DA AULA
+    <div id="chat"></div>
+    <input type="text" id="messageInput" placeholder="Digite sua mensagem">
+    <button onclick="sendMessage()">Enviar</button>
+    <div id="notificacoes">
+
+    </div>
+    <script>
+        const chatDiv = document.getElementById('chat');
+        const messageInput = document.getElementById('messageInput');
+
+        // Função para adicionar mensagens ao chat
+        function addMessage(message, sender) {
+            const notificacaoJSON = JSON.parse(message)
+            const caixaDeNotificacoes = document.getElementById('notificacoes')
+            
+            const notificacao = document.createElement('div')
+            notificacao.className = 'notificacao'
+            
+            const spanQuemEnviou = document.createElement('span')
+            const spanMensagem = document.createElement('span')
+            const spanDataEnvio = document.createElement('span')
+           
+            spanQuemEnviou.textContent = notificacaoJSON.quemEnviou
+            spanMensagem.textContent = notificacaoJSON.mensagem
+            spanDataEnvio.textContent = notificacaoJSON.dataEnvio
+           
+            notificacao.appendChild(spanQuemEnviou)
+            notificacao.appendChild(spanMensagem)
+            notificacao.appendChild(spanDataEnvio)
+
+            caixaDeNotificacoes.appendChild(notificacao)
+        }
+
+        // Função para enviar mensagens para o servidor WebSocket
+        function sendMessage() {
+            const message = messageInput.value;
+            addMessage(message, 'Você');
+            socket.send(message);
+            messageInput.value = '';
+        }
+
+        // Conectar-se ao servidor WebSocket
+        const socket = new WebSocket('ws://195.35.37.40:3000');
+
+        // Lidar com a abertura da conexão
+        socket.addEventListener('open', (event) => {
+            console.log('Conectado ao servidor WebSocket.');
+        });
+
+        // Lidar com mensagens recebidas do servidor
+        socket.addEventListener('message', (event) => {
+            const message = event.data;
+            addMessage(message, ' Servidor');
+        });
+
+        // Lidar com o fechamento da conexão
+        socket.addEventListener('close', (event) => {
+            console.log('Conexão fechada.');
+        });
+    </script>
 </body>
 </html>
